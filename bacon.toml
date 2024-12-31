@@ -1,0 +1,11 @@
+default_job = "ruff"
+env.CARGO_TERM_COLOR = "always"
+
+[jobs.ruff]
+env.FORCE_COLOR = "1"
+command = [
+    "just", "fmt_check",
+]
+need_stdout = true
+analyzer = "python_ruff"
+watch = ["."]
