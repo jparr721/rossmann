@@ -1,5 +1,6 @@
 import pandas as pd
 import requests
+from rich.progress import Progress
 
 
 def query_ollama(prompt):
@@ -50,11 +51,22 @@ def main():
             print(f"Error processing row: {e}")
             return "error"
 
-    # Apply the function to each row
-    merged["needs_wiki_article"] = merged.apply(process_row, axis=1)
+    # Use Rich Progress to track progress through the rows
+    with Progress() as progress:
+        task = progress.add_task("[cyan]Processing rows...", total=len(merged))
+        results = []
 
-    # Display the updated DataFrame
-    pd.write_csv("merged_first_try.csv")
+        for _, row in merged.iterrows():
+            result = process_row(row)
+            results.append(result)
+            progress.update(task, advance=1)
+
+    # Add results to the DataFrame
+    merged["needs_wiki_article"] = results
+
+    # Write the updated DataFrame to a CSV file
+    merged.to_csv("merged_first_try.csv", index=False)
+    print("Processing complete. Results saved to 'merged_first_try.csv'.")
 
 
 if __name__ == "__main__":
